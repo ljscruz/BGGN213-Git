@@ -1,0 +1,63 @@
+---
+title: "HW Class6 (Write a function)"
+author: 'L.Cruz PID: A59006931'
+date: "10/25/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r}
+# install.packages("bio3d")
+```
+```{r}
+# Can you improve this analysis code?
+library(bio3d)
+s1 <- read.pdb("4AKE")  # kinase with drug
+s2 <- read.pdb("1AKE")  # kinase no drug
+s3 <- read.pdb("1E4Y")  # kinase with drug
+s1.chainA <- trim.pdb(s1, chain="A", elety="CA")
+s2.chainA <- trim.pdb(s2, chain="A", elety="CA")
+s3.chainA <- trim.pdb(s1, chain="A", elety="CA")
+s1.b <- s1.chainA$atom$b
+s2.b <- s2.chainA$atom$b
+s3.b <- s3.chainA$atom$b
+plotb3(s1.b, sse=s1.chainA, typ="l", ylab="Bfactor")
+plotb3(s2.b, sse=s2.chainA, typ="l", ylab="Bfactor")
+plotb3(s3.b, sse=s3.chainA, typ="l", ylab="Bfactor")
+```
+
+```{r}
+##Make a Function to visualize the data better: 
+all.drug.plot <- function(file, chain, elmnt, fctr){
+##Give data different colors to better vizualize: 
+  plot_colors <- c("NAVY", "DARK RED", "DARK GREEN")
+## This will help  to repeat through every value of the "file" vector
+  for (i in 1:length(file)) {
+  s1 <- read.pdb(file[i])
+  s1.chain <- trim.pdb(s1, chain = chain, elety = elmnt)
+  atom_df <- s1.chain$atom
+##Made a variable so "s1.fctr" takes in all the element information
+##This will also select the entire columns, respectively, based on the factor input
+  s1.fctr <- atom_df[, fctr] 
+##First plot
+  if (i == 1) {
+    plotb3(s1.fctr, sse = s1.chain, typ = "l", ylab = paste(toupper(fctr), "factor", sep = ""), col = plot_colors[i])
+##Other plots are then added to the first plot
+  } else {lines(s1.fctr, col = plot_colors[i])}}
+##Add legends for the graph and other aesthetics 
+  legend("topright", title = "PDB File Name", file, fill = plot_colors, horiz=TRUE, cex = 0.5, inset = c(0.03, 0.06))
+}
+```
+
+```{r}
+##This will test the new function and see if we can identify the protein drug iterations
+files <- c("4AKE", "1AKE", "1E4Y")
+chains <- "A"
+elements <- "CA"
+factors <- "b"
+all.drug.plot(files, chains, elements, factors)
+```
+
+
+
